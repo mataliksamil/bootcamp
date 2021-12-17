@@ -8,7 +8,7 @@ from customers.filters import CustomerFilter, AddressFilter, CountryFilter, City
 from customers.models import Customer, Address, City, Country
 from customers.serializers import CustomerSerializer, AddressSerializer, CitySerializer, \
     CountrySerializer, \
-    AddressDetailedSerializer, CityDetailedSerializer, ProfileSerializer
+    AddressDetailedSerializer, CityDetailedSerializer, ProfileSerializer, RegisterSerializer
 
 
 class AdminCustomerViewSet(viewsets.ModelViewSet):
@@ -31,6 +31,10 @@ class MyProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gener
         obj = get_object_or_404(queryset, **filter_kwargs)
         return obj
 
+class RegisterViewSet(mixins.CreateModelMixin,GenericViewSet):
+    queryset = Customer.objects.all()
+    permission_classes = ()
+    serializer_class = RegisterSerializer
 
 class CountryViewSet(viewsets.ModelViewSet):
     permission_classes = ()

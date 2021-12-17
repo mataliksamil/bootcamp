@@ -2,7 +2,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db.transaction import atomic
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-
+from django.contrib.auth.password_validation import validate_password
+from rest_framework.validators import UniqueValidator
 from customers.models import Customer, Address, City, Country
 
 
@@ -13,12 +14,44 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ("id", "first_name", "last_name", "email", "is_staff", "is_active", "date_joined")
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class RegisterSerializer(CustomerSerializer):
+    """
+    Registration Serializer
+
+    RegisterSerializer, Customer model used
+    creates and saves Customer object
+    """
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password],
+                                     style={'input_type': 'password', 'placeholder': 'Password'})
+    password2 = serializers.CharField(write_only=True, required=True,
+                                      style={'input_type': 'password', 'placeholder': 'Password2'})
 
     class Meta:
         model = Customer
-        fields = ("first_name", "last_name", "email")
+        fields = ("email", "password", "password2")
 
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
+
+    def create(self, validated_data):
+        customer = Customer.objects.create(
+            email=validated_data['email'],
+        )
+
+        customer.set_password(validated_data['password'])
+        customer.save()
+
+        return customer
+
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField
+    class Meta:
+        model = Customer
+        fields = ("first_name", "last_name", "email")
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
