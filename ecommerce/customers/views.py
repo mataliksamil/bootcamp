@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions, mixins
 from rest_framework.viewsets import GenericViewSet
 
 from core.mixins import DetailedViewSetMixin
-from core.utils import IsStaffUserAuthenticated
+from core.utils import IsStaffUserAuthenticated, IsNotAuthenticatedUser
 from customers.filters import CustomerFilter, AddressFilter, CountryFilter, CityFilter
 from customers.models import Customer, Address, City, Country
 from customers.serializers import CustomerSerializer, AddressSerializer, CitySerializer, \
@@ -31,16 +31,18 @@ class MyProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gener
         obj = get_object_or_404(queryset, **filter_kwargs)
         return obj
 
-class RegisterViewSet(mixins.CreateModelMixin,GenericViewSet):
+class RegisterViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = (
+        IsNotAuthenticatedUser,
+    )
     queryset = Customer.objects.all()
-    permission_classes = ()
     serializer_class = RegisterSerializer
 
 class CountryViewSet(viewsets.ModelViewSet):
     permission_classes = ()
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-    filterset_class = CountryFilter
+    filterset_class = RegisterSerializer
 
 
 class CityViewSet(DetailedViewSetMixin, viewsets.ModelViewSet):

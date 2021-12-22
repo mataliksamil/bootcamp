@@ -46,6 +46,7 @@ router.register("bank_accounts", BankAccountViewSet)
 router.register("banks", BankViewSet)
 router.register("admin-products", AdminProductViewSet, basename="admin-product")
 router.register("admin-customers", AdminCustomerViewSet, basename="admin-customer")
+router.register("register", RegisterViewSet, basename= "customer-register")
 
 urlpatterns = [
     path("api/", include(router.urls)),
@@ -54,8 +55,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/profile/', MyProfileViewSet.as_view(
         {"get": "retrieve", "put": "update", "patch": "partial_update"}), name='profile'),
-    path('register/', RegisterViewSet.as_view(
-        {"post": "create"}), name='auth_register'),
 ]
 
 if settings.DEBUG:

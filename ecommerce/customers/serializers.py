@@ -13,8 +13,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ("id", "first_name", "last_name", "email", "is_staff", "is_active", "date_joined")
 
+class ProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField
+    class Meta:
+        model = Customer
+        fields = ("first_name", "last_name", "email")
 
-class RegisterSerializer(CustomerSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
     """
     Registration Serializer
 
@@ -28,30 +33,27 @@ class RegisterSerializer(CustomerSerializer):
 
     class Meta:
         model = Customer
-        fields = ("email", "password", "password2")
+        fields = ("first_name", "last_name", "email", "password", "password2")
+
+        extra_kwargs= {
+            'first_name': {'required': True,'allow_blank':False },
+            'last_name': {'required': True,'allow_blank':False}
+        }
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        attrs = super().validate(attrs)
+        password = attrs['password']
+        password2 = attrs['password2']
+        if  password != password2:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
         return attrs
 
     def create(self, validated_data):
-        customer = Customer.objects.create(
-            email=validated_data['email'],
-        )
-
-        customer.set_password(validated_data['password'])
-        customer.save()
-
-        return customer
+        validated_data.pop('password2', None)
+        instance = Customer.objects.create_user(**validated_data)
+        return instance
 
 
-
-class ProfileSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField
-    class Meta:
-        model = Customer
-        fields = ("first_name", "last_name", "email")
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:

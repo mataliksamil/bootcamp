@@ -32,3 +32,8 @@ class IsStaffUserAuthenticated(BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.is_staff)
+
+class IsNotAuthenticatedUser(BasePermission):
+
+    def has_permission(self, request, view):
+        return not bool(request.user and request.user.is_authenticated)
