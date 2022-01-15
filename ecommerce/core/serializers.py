@@ -14,3 +14,4 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
         token["last_name"] = user.last_name
         token["email"] = user.email
         return token
+

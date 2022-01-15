@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from uuid import uuid4
 from core.models import BaseAbstractModel
 from customers.models import Customer
 from baskets import enums
@@ -13,7 +13,10 @@ class Basket(BaseAbstractModel):
     """
     customer = models.ForeignKey(Customer, verbose_name=_("Customer"), 
                                  on_delete=models.PROTECT, null=True, blank=True)
-    status = models.CharField(choices=enums.BasketStatus.choices, max_length=10, 
+    slug = models.UUIDField(auto_created=True, default=uuid4, unique=True)
+    customer = models.ForeignKey(Customer, verbose_name=_("Customer"),
+                                 on_delete=models.PROTECT, null=True, blank=True)
+    status = models.CharField(choices=enums.BasketStatus.choices, max_length=10,
                               verbose_name=_("Basket Status"), default=enums.BasketStatus.OPEN)
 
     class Meta:
